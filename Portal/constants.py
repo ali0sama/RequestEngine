@@ -1,0 +1,18 @@
+from . models import Role,State,Action
+ 
+TRANSITIONS={
+     (State.DRAFT,Action.SUBMIT):(State.PENDING_MANAGER,Role.REQUESTER),
+     
+     (State.PENDING_MANAGER,Action.APPROVE):(State.PENDING_APP_OWNER,Role.MANAGER),
+     (State.PENDING_MANAGER,Action.REJECT):(State.REJECTED,Role.MANAGER),
+     (State.PENDING_MANAGER,Action.RETURN):(State.INFO_REQUESTED,Role.MANAGER),
+     
+     (State.PENDING_APP_OWNER,Action.APPROVE):(State.PENDING_SECURITY,Role.APP_OWNER),
+     (State.PENDING_APP_OWNER,Action.REJECT):(State.REJECTED,Role.APP_OWNER),
+     (State.PENDING_APP_OWNER,Action.RETURN):(State.INFO_REQUESTED,Role.APP_OWNER),
+     
+     (State.PENDING_SECURITY,Action.APPROVE):(State.APPROVED,Role.SECURITY),
+     (State.PENDING_SECURITY,Action.REJECT):(State.REJECTED,Role.SECURITY),
+     (State.PENDING_SECURITY,Action.RETURN):(State.INFO_REQUESTED,Role.SECURITY),
+
+ }
