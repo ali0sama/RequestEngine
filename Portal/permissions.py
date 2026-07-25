@@ -16,3 +16,10 @@ class IsCurrentOwner(BasePermission):
         self, request: Request, view: APIView, obj: AccessRequest
     ) -> bool:
         return obj.current_owner == request.user
+
+
+class IsRequester(BasePermission):
+    def has_object_permission(
+        self, request: Request, view: APIView, obj: AccessRequest
+    ) -> bool:
+        return obj.requester == request.user

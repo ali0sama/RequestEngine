@@ -39,7 +39,25 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "Portal.apps.PortalConfig",
     "rest_framework",
+    "drf_spectacular",
 ]
+
+# Rest Definition
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Access Request Workflow API",
+    "DESCRIPTION": "Backend for the internal access request approval portal",
+    "VERSION": "1.0.0",
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
