@@ -170,6 +170,31 @@ class AccessRequestViewSet(viewsets.ModelViewSet):
             return [IsAuthenticated(), IsRequesterRole()]
         return super().get_permissions()
 
+    @extend_schema(
+        summary="Create Access Request",
+        description="Creates a new access request for an application. The requester is set automatically from the authenticated user; the request starts in DRAFT state.",
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="List My Requests",
+        description="Returns every access request submitted by the currently authenticated user.",
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Get Request Details",
+        description="Returns full details of a specific access request, including its complete approval history, for either the requester or the current approver.",
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Pending Approvals",
+        description="Returns every access request currently awaiting a decision from the authenticated approver.",
+    )
     @action(detail=False, methods=["get"])
     def pending_approvals(self, request: Request) -> Response:
         qs = AccessRequest.objects.filter(current_owner=request.user)
@@ -177,46 +202,70 @@ class AccessRequestViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     @extend_schema(
-        request=WorkflowActionSerializer, responses={200: AccessRequestSerializer}
+        summary="Submit Request",
+        description="Moves a DRAFT request into the approval chain, assigning it to the requester's line manager. Only callable by the request's own creator.",
+        request=WorkflowActionSerializer,
+        responses={200: AccessRequestSerializer, 400: dict},
     )
     @action(detail=True, methods=["post"])
     def submit(self, request: Request, pk=None):
         return self._handle_action(request, WorkflowAction.SUBMIT)
 
     @extend_schema(
-        request=WorkflowActionSerializer, responses={200: AccessRequestSerializer}
+        summary="Approve Request",
+        description="Approves a request currently assigned to the logged-in user, advancing it to the next stage.",
+        request=WorkflowActionSerializer,
+        responses={200: AccessRequestSerializer},
     )
     @action(detail=True, methods=["post"])
     def approve(self, request, pk=None):
         return self._handle_action(request, WorkflowAction.APPROVE)
 
     @extend_schema(
-        request=WorkflowActionSerializer, responses={200: AccessRequestSerializer}
+        summary="Reject Request",
+        description="Rejects a request currently assigned to the logged-in user, ending its workflow.",
+        request=WorkflowActionSerializer,
+        responses={200: AccessRequestSerializer, 400: dict, 403: dict},
     )
     @action(detail=True, methods=["post"])
     def reject(self, request, pk=None):
         return self._handle_action(request, WorkflowAction.REJECT)
 
     @extend_schema(
-        request=WorkflowActionSerializer, responses={200: AccessRequestSerializer}
+        summary="Return for Information",
+        description="Sends a request back to its original requester for clarification, remembering the current stage so it can resume there after resubmission.",
+        request=WorkflowActionSerializer,
+        responses={200: AccessRequestSerializer, 400: dict, 403: dict},
     )
     @action(detail=True, methods=["post"])
     def return_for_info(self, request, pk=None):
         return self._handle_action(request, WorkflowAction.RETURN)
 
     @extend_schema(
-        request=WorkflowActionSerializer, responses={200: AccessRequestSerializer}
+        summary="Resubmit Request",
+        description="Called by the original requester after responding to a return-for-info request. Resumes the workflow at the stage it was returned from.",
+        request=WorkflowActionSerializer,
+        responses={200: AccessRequestSerializer, 400: dict, 403: dict},
     )
     @action(detail=True, methods=["post"])
     def resubmit(self, request, pk=None):
         return self._handle_action(request, WorkflowAction.RESUBMIT)
 
+    @extend_schema(
+        summary="Get Approval History",
+        description="Returns the full chronological list of workflow actions taken on a specific request.",
+        responses={200: WorkflowHistorySerializer(many=True)},
+    )
     @action(detail=True, methods=["get"])
     def history(self, request, pk=None):
         access_request = self.get_object()
         serializer = WorkflowHistorySerializer(access_request.history.all(), many=True)
         return Response(serializer.data)
 
+    @extend_schema(
+        summary="Needs My Response",
+        description="Returns every access request submitted by this user that has been returned for more information and requires a response.",
+    )
     @action(detail=False, methods=["get"])
     def needs_my_response(self, request):
         qs = AccessRequest.objects.filter(
@@ -247,3 +296,17 @@ class ApplicationViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ApplicationSerializer
     permission_classes = [IsAuthenticated]
     queryset = Application.objects.all()
+
+    @extend_schema(
+        summary="List Applications",
+        description="Returns every internal application available for access requests.",
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Get Application Details",
+        description="Returns details of a single internal application.",
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
