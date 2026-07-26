@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Application, AccessRequest, WorkflowHistory
+from django.contrib.auth.models import User
 
 
 class WorkflowHistorySerializer(serializers.ModelSerializer):
@@ -64,3 +65,33 @@ class AccessRequestSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
+
+class WorkflowActionSerializer(serializers.Serializer):
+    comment = serializers.CharField(required=False, allow_blank=True)
+
+
+class LoginResponseSerializer(serializers.Serializer):
+    access = serializers.CharField()
+    refresh = serializers.CharField()
+
+
+class RefreshResponseSerializer(serializers.Serializer):
+    access = serializers.CharField()
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True)
+
+
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+
+
+class UserSerializer(serializers.ModelSerializer):
+    role = serializers.CharField(source="profile.role", read_only=True)
+
+    class Meta:
+        model = User
+        fields = ["id", "username", "email", "role"]

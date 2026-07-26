@@ -49,6 +49,11 @@ def apply_transition(
             f"{actor} is not authorized to {action} this request"
         )
     new_owner = _owner_for_state(access_request, new_state)
+    if new_owner is None and new_state not in (State.APPROVED, State.REJECTED):
+        raise InvalidTransitionError(
+            f"Cannot move this request to {new_state}: no eligible owner could be found "
+            f"(check that a manager/application owner/security team member is properly assigned)"
+        )
     returned_from = access_request.current_state if action == Action.RETURN else None
     with transaction.atomic():
         WorkflowHistory.objects.create(

@@ -19,13 +19,28 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
-
+from Portal.views import (
+    AuthLoginView,
+    AuthRefreshView,
+    CurrentUserView,
+    ChangePasswordView,
+    LogoutView,
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("Portal.urls")),
-    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    # path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    # path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("api/auth/login/", AuthLoginView.as_view(), name="auth-login"),
+    path("api/auth/token/refresh/", AuthRefreshView.as_view(), name="auth-refresh"),
+    path("api/auth/me/", CurrentUserView.as_view(), name="auth-me"),
+    path("api/auth/logout/", LogoutView.as_view(), name="auth-logout"),
+    path(
+        "api/auth/change-password/",
+        ChangePasswordView.as_view(),
+        name="auth-change-password",
+    ),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "api/docs/",
