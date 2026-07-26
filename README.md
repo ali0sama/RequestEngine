@@ -1,49 +1,95 @@
-# Access Request Workflow Portal
+# Access Request Workflow API
 
-A full-stack workflow management application that allows employees to request access to internal systems through a structured approval process instead of emails.
+A Django REST Framework backend that powers an Access Request Workflow Portal. The system allows employees to submit access requests for internal applications and routes them through a configurable multi-stage approval workflow.
 
-The application follows a multi-stage approval workflow, ensuring every request is reviewed, tracked, and audited from creation until completion.
+The API enforces business rules, validates workflow transitions, records approval history, and provides complete auditability throughout the request lifecycle.
 
 ---
 
 ## Features
 
 ### Request Management
-- Create new access requests
-- View submitted requests
-- Track request status in real time
-- View approval history
-- Respond to requests for additional information
 
-### Approval Workflow
-- Multi-stage approval process
-- Approve or reject requests
-- Return requests for more information
-- Add comments during approvals
-- Automatic workflow progression
+- Create access requests
+- Retrieve submitted requests
+- View request details
+- Track current request status
+- View workflow history
 
 ### Workflow Engine
-- Supports multiple approval stages
-- Prevents invalid workflow transitions
-- Tracks the current request owner
-- Stores complete workflow history
-- Maintains audit logs for every action
 
-### Dashboard
-- View pending approvals
-- View completed requests
-- Monitor request progress
-- Timeline of workflow actions
+- Multi-stage approval workflow
+- Configurable workflow transitions
+- Validation of allowed state changes
+- Automatic routing to the next approver
+- Prevention of invalid transitions
+
+### Approval Process
+
+Approvers can:
+
+- Approve requests
+- Reject requests
+- Request additional information
+- Add approval comments
+
+### Audit & Tracking
+
+- Workflow history
+- Audit logging
+- Current request owner tracking
+- Action timestamps
+
+### API
+
+- RESTful endpoints
+- JSON responses
+- Proper HTTP status codes
+- Input validation
+- Centralized exception handling
+
+---
+
+## Tech Stack
+
+- Python
+- Django
+- Django REST Framework
+- SQLite / PostgreSQL
+- Ruff
+- Git
+
+---
+
+## Project Structure
+
+```
+backend/
+│
+├── access_request/
+│   ├── migrations/
+│   ├── models.py
+│   ├── serializers.py
+│   ├── services.py
+│   ├── views.py
+│   ├── urls.py
+│   ├── exceptions.py
+│   ├── constants.py
+│   └── permissions.py
+│
+├── config/
+│
+├── manage.py
+│
+└── requirements.txt
+```
 
 ---
 
 ## Workflow
 
-```text
-Employee
-    │
-    ▼
-Create Request
+```
+Requester
     │
     ▼
 Line Manager
@@ -58,78 +104,12 @@ Security Team
 Completed
 ```
 
-At each stage an approver can:
+Possible actions during the workflow:
 
 - Approve
 - Reject
 - Request More Information
-
----
-
-## Tech Stack
-
-### Backend
-- Django
-- Django REST Framework
-- SQLite / PostgreSQL
-- REST APIs
-
-### Frontend
-- Angular
-- TypeScript
-- HTML
-- CSS
-
----
-
-## Project Structure
-
-```
-backend/
-    apps/
-    models/
-    views/
-    serializers/
-    urls/
-
-frontend/
-    src/
-        app/
-        components/
-        services/
-```
-
----
-
-## API Features
-
-- RESTful API
-- CRUD operations
-- Workflow validation
-- Role-based authorization
-- Error handling
-- Audit logging
-
----
-
-## Main Pages
-
-- Dashboard
-- Create Request
-- My Requests
-- Request Details
-- Pending Approvals
-- Approval Details
-
----
-
-## Business Rules
-
-- Only valid workflow transitions are allowed.
-- Every workflow action is logged.
-- Current approver is tracked.
-- Approval history cannot be modified.
-- Requests can be approved, rejected, or returned for more information.
+- Resubmit
 
 ---
 
@@ -138,63 +118,94 @@ frontend/
 ### Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/AccessRequestWorkflow.git
-cd AccessRequestWorkflow
+git clone https://github.com/ali0sama/RequestEngine.git
+
+cd RequestEngine
 ```
 
-### Backend
+### Create a virtual environment
 
 ```bash
-cd backend
-
 python -m venv venv
+```
 
-# Windows
+### Activate the environment
+
+Windows
+
+```bash
 venv\Scripts\activate
+```
 
-# Linux/macOS
+Linux / macOS
+
+```bash
 source venv/bin/activate
+```
 
+### Install dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
+### Apply migrations
+
+```bash
 python manage.py migrate
+```
 
+### Run the development server
+
+```bash
 python manage.py runserver
 ```
 
-### Frontend
+---
 
-```bash
-cd frontend
+## API Overview
 
-npm install
+The API provides endpoints for:
 
-ng serve
-```
+- Managing access requests
+- Processing workflow actions
+- Retrieving workflow history
+- Viewing pending approvals
+- Managing request states
+
+---
+
+## Business Rules
+
+- Only valid workflow transitions are allowed.
+- Every action is recorded in the workflow history.
+- Invalid transitions raise exceptions.
+- Each request always has a current owner.
+- Requests move through predefined approval stages.
+
+---
+
+## Error Handling
+
+The project includes centralized exception handling for:
+
+- Invalid workflow transitions
+- Unauthorized actions
+- Validation errors
+- Resource not found
+- Internal server errors
 
 ---
 
 ## Future Improvements
 
-- Email notifications
 - JWT Authentication
-- Role management
-- File attachments
-- Admin dashboard
-- Analytics
+- Role-based permissions
+- Email notifications
+- Swagger / OpenAPI documentation
 - Docker support
+- Unit and integration testing
 - CI/CD pipeline
-
----
-
-## Screenshots
-
-> Add screenshots of:
->
-> - Dashboard
-> - Request Form
-> - Approval Page
-> - Request Timeline
 
 ---
 
@@ -210,4 +221,4 @@ LinkedIn: https://www.linkedin.com/in/ali-osama-7673b2352/
 
 ## License
 
-This project is for learning purposes as part of a workflow onboarding project.
+This project was developed for educational purposes as part of a backend onboarding project.
