@@ -1,0 +1,85 @@
+<div class="layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="content">
+    <app-header></app-header>
+
+    <div class="page-body">
+
+      <div class="page-header">
+        <div>
+          <h2 class="page-title">Pending Approvals</h2>
+          <p class="page-subtitle">Requests currently assigned to you for a decision.</p>
+        </div>
+        @if (!loading() && !error()) {
+          <div class="count-badge">
+            {{ approvals().length }} pending
+          </div>
+        }
+      </div>
+
+      @if (loading()) {
+        <div class="loading-state">
+          <app-loading-spinner size="lg"></app-loading-spinner>
+          <p>Loading approvals…</p>
+        </div>
+      }
+
+      @else if (restricted()) {
+        <div class="restricted-state">
+          <i class="fa-solid fa-lock"></i>
+          <h3>Access Restricted</h3>
+          <p>This page is only available to managers, application owners, and security team members.</p>
+          <a routerLink="/dashboard">Back to Dashboard</a>
+        </div>
+      }
+
+      @else if (error()) {
+        <div class="error-state">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <p>Could not load approvals. Make sure the backend is running.</p>
+        </div>
+      }
+
+      @else if (approvals().length === 0) {
+        <div class="empty-state">
+          <i class="fa-solid fa-circle-check"></i>
+          <p>You're all caught up — no pending approvals.</p>
+        </div>
+      }
+
+      @else {
+        <div class="approvals-list">
+          @for (req of approvals(); track req.id) {
+            <div class="approval-card">
+
+              <div class="stage-icon" [style.background]="stageColor(req.current_state)">
+                <i class="fa-solid" [class]="stageIcon(req.current_state)"></i>
+              </div>
+
+              <div class="approval-info">
+                <div class="approval-top">
+                  <span class="app-name">{{ req.application_name }}</span>
+                  <span class="stage-tag" [style.color]="stageColor(req.current_state)">
+                    {{ stageLabel(req.current_state) }}
+                  </span>
+                </div>
+                <p class="justification">{{ req.justification }}</p>
+                <div class="approval-meta">
+                  <span><i class="fa-solid fa-user"></i> {{ req.requester_username }}</span>
+                  <span><i class="fa-solid fa-calendar"></i> {{ req.created_at | date:'dd MMM yyyy' }}</span>
+                </div>
+              </div>
+
+              <a class="review-btn" [routerLink]="['/requests', req.id]">
+                Review <i class="fa-solid fa-arrow-right"></i>
+              </a>
+
+            </div>
+          }
+        </div>
+      }
+
+    </div>
+  </div>
+</div>

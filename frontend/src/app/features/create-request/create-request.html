@@ -1,0 +1,118 @@
+<div class="layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="content">
+    <app-header></app-header>
+
+    <div class="page-body">
+
+      <div class="page-header">
+        <div>
+          <h2 class="page-title">New Access Request</h2>
+          <p class="page-subtitle">Select an application and explain why you need access.</p>
+        </div>
+      </div>
+
+      @if (loadingApps()) {
+        <div class="loading-state">
+          <app-loading-spinner size="lg"></app-loading-spinner>
+          <p>Loading applications…</p>
+        </div>
+      }
+
+      @else if (appsError()) {
+        <div class="error-state">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <p>Could not load applications. Make sure the backend is running.</p>
+        </div>
+      }
+
+      @else {
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="form-card">
+
+            <!-- Application select -->
+            <div class="field">
+              <label for="application">Application <span class="required">*</span></label>
+
+              <select id="application" formControlName="application">
+                <option [ngValue]="null" disabled>— Select an application —</option>
+                @for (app of applications(); track app.id) {
+                  <option [value]="app.id">{{ app.name }}</option>
+                }
+              </select>
+
+              @if (form.get('application')?.invalid && form.get('application')?.touched) {
+                <small class="field-error">Please select an application.</small>
+              }
+            </div>
+
+            <!-- Selected app info card -->
+            @if (selectedApp) {
+              <div class="app-info">
+                <i class="fa-solid fa-layer-group"></i>
+                <div>
+                  <strong>{{ selectedApp.name }}</strong>
+                  <p>{{ selectedApp.description || 'No description available.' }}</p>
+                  <small>Owner: {{ selectedApp.owner_username }}</small>
+                </div>
+              </div>
+            }
+
+            <!-- Justification -->
+            <div class="field">
+              <label for="justification">
+                Business Justification <span class="required">*</span>
+              </label>
+
+              <textarea
+                id="justification"
+                formControlName="justification"
+                rows="5"
+                placeholder="Explain why you need access to this application and how it relates to your role…">
+              </textarea>
+
+              @if (form.get('justification')?.invalid && form.get('justification')?.touched) {
+                @if (form.get('justification')?.errors?.['required']) {
+                  <small class="field-error">Justification is required.</small>
+                } @else if (form.get('justification')?.errors?.['minlength']) {
+                  <small class="field-error">Please provide at least 10 characters.</small>
+                }
+              }
+            </div>
+
+            <!-- Submit error -->
+            @if (submitError()) {
+              <div class="error-state">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <p>{{ submitError() }}</p>
+              </div>
+            }
+
+            <!-- Actions -->
+            <div class="actions">
+              <a class="btn-secondary" routerLink="/requests">Cancel</a>
+
+              <button
+                type="submit"
+                class="btn-primary"
+                [disabled]="submitting()">
+
+                @if (submitting()) {
+                  <app-loading-spinner size="sm"></app-loading-spinner>
+                  Submitting…
+                } @else {
+                  <i class="fa-solid fa-paper-plane"></i>
+                  Create Request
+                }
+
+              </button>
+            </div>
+
+          </div>
+        </form>
+      }
+
+    </div>
+  </div>
+</div>

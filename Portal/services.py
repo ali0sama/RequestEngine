@@ -40,15 +40,27 @@ def apply_transition(
             f"Cannot perform {action} from {access_request.current_state}"
         )
     new_state, required_role = TRANSITIONS[lookup_key]
-    requires_ownership_check = action != Action.SUBMIT
 
-    if actor.profile.role != required_role or (
-        requires_ownership_check and actor != access_request.current_owner
-    ):
-        raise UnauthorizedActionError(
-            f"{actor} is not authorized to {action} this request"
-        )
+    # SUBMIT: any role may submit their own request — IsRequester DRF permission
+    # already verified actor == access_request.requester before we get here.
+    if action == Action.SUBMIT:
+        if actor != access_request.requester:
+            raise UnauthorizedActionError(
+                f"{actor} did not create this request"
+            )
+    else:
+        if actor.profile.role != required_role or actor != access_request.current_owner:
+            raise UnauthorizedActionError(
+                f"{actor} is not authorized to {action} this request"
+            )
+
     new_owner = _owner_for_state(access_request, new_state)
+
+    # If the requester has no manager, skip the manager stage and go to app owner.
+    if action == Action.SUBMIT and new_state == State.PENDING_MANAGER and new_owner is None:
+        new_state = State.PENDING_APP_OWNER
+        new_owner = _owner_for_state(access_request, new_state)
+
     if new_owner is None and new_state not in (State.APPROVED, State.REJECTED):
         raise InvalidTransitionError(
             f"Cannot move this request to {new_state}: no eligible owner could be found "

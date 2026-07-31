@@ -1,0 +1,30 @@
+<header>
+
+  <div class="page-title">{{ pageTitle() }}</div>
+
+  <div class="right-section">
+
+    <div class="notification">
+      <i class="fa-regular fa-bell"></i>
+    </div>
+
+    <div class="user-card">
+
+      <div class="avatar">
+        {{ username().charAt(0).toUpperCase() }}
+      </div>
+
+      <div class="user-info">
+        <strong>{{ username() }}</strong>
+        <small>{{ role() }}</small>
+      </div>
+
+    </div>
+
+    <button class="logout-btn" (click)="logout()">
+      <i class="fa-solid fa-right-from-bracket"></i>
+    </button>
+
+  </div>
+
+</header>

@@ -167,7 +167,7 @@ class AccessRequestViewSet(viewsets.ModelViewSet):
         if self.action == "pending_approvals":
             return [IsAuthenticated(), IsApproverRole()]
         if self.action == "needs_my_response":
-            return [IsAuthenticated(), IsRequesterRole()]
+            return [IsAuthenticated()]
         return super().get_permissions()
 
     @extend_schema(

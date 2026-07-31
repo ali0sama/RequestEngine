@@ -1,0 +1,184 @@
+<div class="layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="content">
+    <app-header></app-header>
+
+    <div class="page-body">
+
+      @if (loading()) {
+        <div class="loading-state">
+          <app-loading-spinner size="lg"></app-loading-spinner>
+          <p>Loading request…</p>
+        </div>
+      }
+
+      @else if (error()) {
+        <div class="error-banner">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <p>Could not load this request.</p>
+          <a routerLink="/requests">Back to My Requests</a>
+        </div>
+      }
+
+      @else if (request(); as req) {
+
+        <!-- Top bar -->
+        <div class="top-bar">
+          <a class="back-link" routerLink="/requests">
+            <i class="fa-solid fa-arrow-left"></i> My Requests
+          </a>
+          <div class="top-bar-right">
+            <span class="badge" [ngClass]="statusClass(req.current_state)">
+              {{ statusLabel(req.current_state) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Title -->
+        <div class="request-title">
+          <h2>Request #{{ req.id }} — {{ req.application_name }}</h2>
+        </div>
+
+        <!-- Meta grid -->
+        <div class="meta-grid">
+          <div class="meta-item">
+            <span class="meta-label"><i class="fa-solid fa-user"></i> Requester</span>
+            <span class="meta-value">{{ req.requester_username }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label"><i class="fa-solid fa-layer-group"></i> Application</span>
+            <span class="meta-value">{{ req.application_name }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label"><i class="fa-solid fa-calendar"></i> Submitted</span>
+            <span class="meta-value">{{ req.created_at | date:'dd MMM yyyy, HH:mm' }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label"><i class="fa-solid fa-user-check"></i> Current Owner</span>
+            <span class="meta-value">{{ req.current_owner_username ?? '—' }}</span>
+          </div>
+        </div>
+
+        <!-- Body: justification + history -->
+        <div class="body-grid">
+
+          <!-- Justification -->
+          <div class="card">
+            <h3 class="card-title">
+              <i class="fa-solid fa-file-lines"></i> Business Justification
+            </h3>
+            <p class="justification-text">{{ req.justification }}</p>
+          </div>
+
+          <!-- History timeline -->
+          <div class="card">
+            <h3 class="card-title">
+              <i class="fa-solid fa-clock-rotate-left"></i> Workflow History
+            </h3>
+
+            @if (req.history.length === 0) {
+              <p class="empty-history">No actions taken yet.</p>
+            } @else {
+              <div class="timeline">
+                @for (entry of req.history; track entry.id) {
+                  <div class="timeline-item">
+                    <div class="timeline-icon" [style.background]="historyColor(entry.action)">
+                      <i [class]="historyIcon(entry.action)"></i>
+                    </div>
+                    <div class="timeline-body">
+                      <div class="timeline-header">
+                        <strong>{{ actionLabel(entry.action) }}</strong>
+                        <span class="timeline-meta">
+                          {{ entry.actor_username }} · {{ entry.timestamp | date:'dd MMM, HH:mm' }}
+                        </span>
+                      </div>
+                      <div class="state-change">
+                        <span class="state-pill">{{ statusLabel(entry.from_state) }}</span>
+                        <i class="fa-solid fa-arrow-right state-arrow"></i>
+                        <span class="state-pill">{{ statusLabel(entry.to_state) }}</span>
+                      </div>
+                      @if (entry.comment) {
+                        <p class="timeline-comment">"{{ entry.comment }}"</p>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+        </div>
+
+        <!-- Action panel -->
+        @if (hasActions()) {
+          <div class="action-panel">
+
+            <h3 class="card-title">
+              <i class="fa-solid fa-bolt"></i> Your Action
+            </h3>
+
+            <div class="action-field">
+              <label>Comment <span class="optional">(optional)</span></label>
+              <textarea
+                rows="3"
+                placeholder="Add a comment to this action…"
+                [value]="comment()"
+                (input)="comment.set($any($event.target).value)">
+              </textarea>
+            </div>
+
+            @if (actionError()) {
+              <div class="action-error">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                {{ actionError() }}
+              </div>
+            }
+
+            <div class="action-buttons">
+
+              @if (canSubmit()) {
+                <button class="btn-action btn-submit" [disabled]="actioning()" (click)="submit()">
+                  @if (actioning()) { <app-loading-spinner size="sm"></app-loading-spinner> }
+                  @else { <i class="fa-solid fa-paper-plane"></i> }
+                  Submit for Approval
+                </button>
+              }
+
+              @if (canResubmit()) {
+                <button class="btn-action btn-submit" [disabled]="actioning()" (click)="resubmit()">
+                  @if (actioning()) { <app-loading-spinner size="sm"></app-loading-spinner> }
+                  @else { <i class="fa-solid fa-rotate-right"></i> }
+                  Resubmit
+                </button>
+              }
+
+              @if (isCurrentOwner()) {
+                <button class="btn-action btn-approve" [disabled]="actioning()" (click)="approve()">
+                  @if (actioning()) { <app-loading-spinner size="sm"></app-loading-spinner> }
+                  @else { <i class="fa-solid fa-check"></i> }
+                  Approve
+                </button>
+
+                <button class="btn-action btn-return" [disabled]="actioning()" (click)="returnForInfo()">
+                  @if (actioning()) { <app-loading-spinner size="sm"></app-loading-spinner> }
+                  @else { <i class="fa-solid fa-rotate-left"></i> }
+                  Return for Info
+                </button>
+
+                <button class="btn-action btn-reject" [disabled]="actioning()" (click)="reject()">
+                  @if (actioning()) { <app-loading-spinner size="sm"></app-loading-spinner> }
+                  @else { <i class="fa-solid fa-xmark"></i> }
+                  Reject
+                </button>
+              }
+
+            </div>
+          </div>
+        }
+
+      }
+
+    </div>
+  </div>
+</div>

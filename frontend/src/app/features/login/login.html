@@ -1,0 +1,109 @@
+<div class="login-page">
+
+    <div class="login-card">
+
+        <img
+            src="/images/vodafone.png"
+            class="logo"
+            alt="Company Logo">
+
+        <h1>Access Request Portal</h1>
+
+        <p class="subtitle">
+            Secure Enterprise Authentication
+        </p>
+
+        <form
+            [formGroup]="loginForm"
+            (ngSubmit)="onSubmit()">
+
+            <!-- Username -->
+
+            <div class="input-group">
+
+                <i class="fa-solid fa-user left-icon"></i>
+
+                <input
+                    type="text"
+                    formControlName="username"
+                    placeholder="Username">
+
+            </div>
+
+            @if(loginForm.get('username')?.invalid &&
+            loginForm.get('username')?.touched){
+
+                <small class="error">
+                    Username is required.
+                </small>
+
+            }
+
+            <!-- Password -->
+
+            <div class="input-group">
+
+                <i class="fa-solid fa-lock left-icon"></i>
+
+                <input
+                    [type]="showPassword ? 'text' : 'password'"
+                    formControlName="password"
+                    placeholder="Password">
+
+                <span
+                    class="eye-icon"
+                    (click)="togglePassword()">
+
+                    <i
+                        class="fa-solid"
+                        [class.fa-eye]="!showPassword"
+                        [class.fa-eye-slash]="showPassword">
+                    </i>
+
+                </span>
+
+            </div>
+
+            @if(loginForm.get('password')?.invalid &&
+            loginForm.get('password')?.touched){
+
+                <small class="error">
+                    Password is required.
+                </small>
+
+            }
+
+           @if (errorMessage) {
+
+<div class="server-error">
+
+    <i class="fa-solid fa-circle-exclamation"></i>
+
+    {{ errorMessage }}
+
+</div>
+
+}
+
+            <button
+    type="submit"
+    [disabled]="loading || loginForm.invalid">
+
+    @if (loading) {
+
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        Signing In...
+
+    } @else {
+
+        Sign In
+
+    }
+
+</button>
+
+        </form>
+
+    </div>
+
+</div>

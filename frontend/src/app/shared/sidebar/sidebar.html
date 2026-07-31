@@ -1,0 +1,51 @@
+<div class="sidebar">
+
+  <div class="brand">
+    <img src="/images/vodafone-flip.svg" alt="Logo">
+    <h2>Request Engine</h2>
+    <span>Enterprise Portal</span>
+  </div>
+
+  <nav>
+
+    <a routerLink="/dashboard"
+       routerLinkActive="active"
+       [routerLinkActiveOptions]="{exact:true}">
+      <i class="fa-solid fa-house"></i>
+      <span>Dashboard</span>
+    </a>
+
+    <a routerLink="/requests"
+       routerLinkActive="active">
+      <i class="fa-solid fa-file-lines"></i>
+      <span>My Requests</span>
+    </a>
+
+    <a routerLink="/create-request"
+       routerLinkActive="active">
+      <i class="fa-solid fa-circle-plus"></i>
+      <span>Create Request</span>
+    </a>
+
+    <a routerLink="/approvals"
+       routerLinkActive="active">
+      <i class="fa-solid fa-user-check"></i>
+      <span>Pending Approvals</span>
+    </a>
+
+    <a routerLink="/applications"
+       routerLinkActive="active">
+      <i class="fa-solid fa-layer-group"></i>
+      <span>Applications</span>
+    </a>
+
+  </nav>
+
+  <div class="logout">
+    <a (click)="logout()" style="cursor:pointer">
+      <i class="fa-solid fa-right-from-bracket"></i>
+      <span>Logout</span>
+    </a>
+  </div>
+
+</div>

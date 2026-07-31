@@ -1,0 +1,82 @@
+<div class="layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="content">
+    <app-header></app-header>
+
+    <div class="page-body">
+
+      <div class="page-header">
+        <div>
+          <h2 class="page-title">My Requests</h2>
+          <p class="page-subtitle">All access requests you have submitted.</p>
+        </div>
+        <a class="btn-primary" routerLink="/create-request">
+          <i class="fa-solid fa-plus"></i> New Request
+        </a>
+      </div>
+
+      @if (loading()) {
+        <div class="loading-state">
+          <app-loading-spinner size="lg"></app-loading-spinner>
+          <p>Loading your requests…</p>
+        </div>
+      }
+
+      @else if (error()) {
+        <div class="error-state">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <p>Could not load requests. Make sure the backend is running.</p>
+        </div>
+      }
+
+      @else if (requests().length === 0) {
+        <div class="empty-state">
+          <i class="fa-solid fa-inbox"></i>
+          <p>You haven't submitted any requests yet.</p>
+          <a class="btn-primary" routerLink="/create-request">Create your first request</a>
+        </div>
+      }
+
+      @else {
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Application</th>
+                <th>Justification</th>
+                <th>Status</th>
+                <th>Current Owner</th>
+                <th>Submitted</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (req of requests(); track req.id) {
+                <tr>
+                  <td class="id-cell">{{ req.id }}</td>
+                  <td class="app-cell">{{ req.application_name }}</td>
+                  <td class="justification-cell">{{ req.justification }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="statusClass(req.current_state)">
+                      {{ statusLabel(req.current_state) }}
+                    </span>
+                  </td>
+                  <td>{{ req.current_owner_username ?? '—' }}</td>
+                  <td>{{ req.created_at | date:'dd MMM yyyy' }}</td>
+                  <td>
+                    <a class="view-link" [routerLink]="['/requests', req.id]">
+                      View <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+    </div>
+  </div>
+</div>
