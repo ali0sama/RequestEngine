@@ -8,6 +8,10 @@ interface LoginResponse {
   refresh: string;
 }
 
+interface RefreshResponse {
+  access: string;
+}
+
 interface CurrentUser {
   id: number;
   username: string;
@@ -35,10 +39,7 @@ export class Auth {
   logout(): Observable<any> {
     const refresh = localStorage.getItem('refresh_token');
     return this.http.post(`${this.apiUrl}/auth/logout/`, { refresh }).pipe(
-      tap(() => {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-      })
+      tap(() => this.clearTokens())
     );
   }
 
@@ -46,8 +47,28 @@ export class Auth {
     return this.http.get<CurrentUser>(`${this.apiUrl}/auth/me/`);
   }
 
+  refreshAccessToken(): Observable<RefreshResponse> {
+    const refresh = this.getRefreshToken();
+    return this.http.post<RefreshResponse>(`${this.apiUrl}/auth/token/refresh/`, { refresh }).pipe(
+      tap((response) => this.setAccessToken(response.access))
+    );
+  }
+
   getAccessToken(): string | null {
     return localStorage.getItem('access_token');
+  }
+
+  getRefreshToken(): string | null {
+    return localStorage.getItem('refresh_token');
+  }
+
+  setAccessToken(token: string): void {
+    localStorage.setItem('access_token', token);
+  }
+
+  clearTokens(): void {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
   }
 
   isLoggedIn(): boolean {
