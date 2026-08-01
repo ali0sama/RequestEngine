@@ -10,6 +10,12 @@ export const routes: Routes = [
   },
 
   {
+    path: 'change-password',
+    loadComponent: () =>
+      import('./features/change-password/change-password').then(m => m.ChangePassword)
+  },
+
+  {
     path: 'dashboard',
     loadComponent: () =>
       import('./features/dashboard/dashboard').then(m => m.Dashboard),

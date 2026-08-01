@@ -47,6 +47,13 @@ export class Auth {
     return this.http.get<CurrentUser>(`${this.apiUrl}/auth/me/`);
   }
 
+  changePassword(oldPassword: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/change-password/`, {
+      old_password: oldPassword,
+      new_password: newPassword,
+    });
+  }
+
   refreshAccessToken(): Observable<RefreshResponse> {
     const refresh = this.getRefreshToken();
     return this.http.post<RefreshResponse>(`${this.apiUrl}/auth/token/refresh/`, { refresh }).pipe(

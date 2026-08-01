@@ -36,36 +36,6 @@ header{
 
 }
 
-.notification{
-
-    width:45px;
-
-    height:45px;
-
-    border-radius:50%;
-
-    background:#F3F5F9;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    cursor:pointer;
-
-    transition:.25s;
-
-}
-
-.notification:hover{
-
-    background:#E60000;
-
-    color:white;
-
-}
-
 .user-card{
 
     display:flex;
