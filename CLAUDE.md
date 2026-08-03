@@ -14,21 +14,22 @@ python -m venv venv
 source venv/Scripts/activate  # Windows
 pip install -r requirements.txt
 python manage.py migrate
+python manage.py createsuperuser
 python manage.py runserver
 ```
-Swagger docs at `http://localhost:8000/api/docs/`
+Swagger docs at `http://localhost:8000/api/docs/`. User accounts/roles are managed via Django admin only — there is no public registration endpoint.
+
+`python manage.py seed_data` populates the DB with test users (`requester1`/`manager1`/`appowner1`/`security1`, password `pass1234`), sample applications, and requests in various workflow states — useful for manual testing.
+
+Lint: `ruff check .` (ruff is in `requirements.txt`). There are currently no real backend tests (`Portal/tests.py` is boilerplate).
 
 **Frontend** (Angular, port 4200):
 ```bash
 cd frontend
 npm install
-npm start
-```
-
-**Build / Test:**
-```bash
-npm run build   # Production build
-npm test        # Run unit tests (vitest)
+npm start        # ng serve
+npm run build    # production build
+npm test         # ng test (vitest) — most feature/shared components have .spec.ts files
 ```
 
 ## Architecture Overview
@@ -54,7 +55,9 @@ Side paths: `REJECTED` (terminal from any approval stage), `INFO_REQUESTED` (ret
 
 **Permissions** (`Portal/permissions.py`) — custom DRF permission classes enforce role-based access per action (e.g. only `current_owner` can approve/reject, only original requester can submit/resubmit).
 
-**API routes** are registered via DRF router in `Portal/urls.py` and mounted under `/api/` in `RequestEngine/urls.py`. Auth endpoints live at `/api/auth/`.
+**API routes** are registered via DRF router in `Portal/urls.py` (`/api/requests/`, `/api/applications/`) and mounted under `/api/` in `RequestEngine/urls.py`. Auth endpoints live at `/api/auth/` (`login`, `refresh`, `logout`, `me`, `change-password`).
+
+Beyond the standard CRUD actions, `AccessRequestViewSet` (`Portal/views.py`) exposes action endpoints: `submit`, `approve`, `reject`, `return_for_info`, `resubmit`, `history`, `pending_approvals` (approver's assigned queue), and `needs_my_response` (requester's items stuck in `INFO_REQUESTED`). Each has its own permission check in `get_permissions()` — don't assume the ViewSet's default `permission_classes` covers a given action.
 
 ### Frontend (`/frontend/src/app/`)
 
@@ -65,9 +68,11 @@ core/
   auth.ts              # AuthService: login/logout/getCurrentUser, token storage (localStorage)
   auth-interceptor.ts  # Injects Bearer token on every outgoing HTTP request
   auth-guard.ts        # Protects /dashboard route
+  request.service.ts   # AccessRequest/Application API calls
+  models.ts            # shared TS interfaces mirroring backend serializers
 features/
-  login/               # Reactive form login page
-  dashboard/           # Main application view
+  login/, dashboard/, requests/, request-detail/, create-request/,
+  approvals/, applications/, change-password/
 shared/
   header/, sidebar/, statistic-card/, loading-spinner/
 ```
