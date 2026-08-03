@@ -16,7 +16,7 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from Portal.views import (
@@ -26,6 +26,7 @@ from Portal.views import (
     ChangePasswordView,
     LogoutView,
 )
+from Portal.frontend_views import serve_frontend
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -47,4 +48,7 @@ urlpatterns = [
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="swagger-ui",
     ),
+]
+urlpatterns += [
+    re_path(r"^(?!admin/|api/|static/)(?P<path>.*)$", serve_frontend),
 ]

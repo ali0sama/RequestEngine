@@ -35,7 +35,7 @@ ALLOWED_HOSTS = [
     h.strip() for h in os.environ.get("ALLOWED_HOSTS", "").split(",") if h.strip()
 ]
 
-CSRF_TRUSTED_ORIGINS = [f"http://{h}" for h in ALLOWED_HOSTS]
+CSRF_TRUSTED_ORIGINS = [f"https://{h}" for h in ALLOWED_HOSTS]
 
 # Application definition
 
