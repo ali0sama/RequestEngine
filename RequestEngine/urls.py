@@ -27,6 +27,7 @@ from Portal.views import (
     LogoutView,
 )
 from Portal.frontend_views import serve_frontend
+from Portal.deploy_views import DeployWebhookView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -48,6 +49,7 @@ urlpatterns = [
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="swagger-ui",
     ),
+    path("api/deploy-webhook/", DeployWebhookView.as_view(), name="deploy-webhook"),
 ]
 urlpatterns += [
     re_path(r"^(?!admin/|api/|static/)(?P<path>.*)$", serve_frontend),
