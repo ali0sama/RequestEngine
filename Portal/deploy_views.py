@@ -22,11 +22,13 @@ class DeployWebhookView(View):
         if not expected or not hmac.compare_digest(token, expected):
             return JsonResponse({"detail": "Forbidden"}, status=403)
 
+        PYTHON_BIN = os.environ.get("VENV_PYTHON", sys.executable)
+
         steps = [
             ["git", "pull", "origin", "main"],
-            [sys.executable, "-m", "pip", "install", "-r", "requirements.txt"],
-            [sys.executable, "manage.py", "migrate"],
-            [sys.executable, "manage.py", "collectstatic", "--noinput"],
+            [PYTHON_BIN, "-m", "pip", "install", "-r", "requirements.txt"],
+            [PYTHON_BIN, "manage.py", "migrate"],
+            [PYTHON_BIN, "manage.py", "collectstatic", "--noinput"],
         ]
 
         results = []
