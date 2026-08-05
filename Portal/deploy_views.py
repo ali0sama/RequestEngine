@@ -22,20 +22,27 @@ class DeployWebhookView(View):
         if not expected or not hmac.compare_digest(token, expected):
             return JsonResponse({"detail": "Forbidden"}, status=403)
 
-        PYTHON_BIN = os.environ.get("VENV_PYTHON", sys.executable)
+        python_bin = os.environ.get("VENV_PYTHON", sys.executable)
 
         steps = [
             ["git", "pull", "origin", "main"],
-            [PYTHON_BIN, "-m", "pip", "install", "-r", "requirements.txt"],
-            [PYTHON_BIN, "manage.py", "migrate"],
-            [PYTHON_BIN, "manage.py", "collectstatic", "--noinput"],
+            [python_bin, "-m", "pip", "install", "-r", "requirements.txt"],
+            [python_bin, "manage.py", "migrate"],
+            [python_bin, "manage.py", "collectstatic", "--noinput"],
         ]
 
         results = []
         for step in steps:
-            result = subprocess.run(
-                step, cwd=PROJECT_DIR, capture_output=True, text=True
-            )
+            try:
+                result = subprocess.run(
+                    step, cwd=PROJECT_DIR, capture_output=True, text=True, timeout=20
+                )
+            except subprocess.TimeoutExpired:
+                results.append({"cmd": " ".join(step), "returncode": "TIMEOUT"})
+                return JsonResponse(
+                    {"detail": "Deploy step timed out", "steps": results}, status=500
+                )
+
             results.append({"cmd": " ".join(step), "returncode": result.returncode})
             if result.returncode != 0:
                 return JsonResponse(
