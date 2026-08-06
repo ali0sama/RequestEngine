@@ -23,23 +23,6 @@ class DeployWebhookView(View):
         if not expected or not hmac.compare_digest(token, expected):
             return JsonResponse({"detail": "Forbidden"}, status=403)
 
-        try:
-            git_result = subprocess.run(
-                ["git", "pull", "origin", "main"],
-                cwd=PROJECT_DIR,
-                capture_output=True,
-                text=True,
-                timeout=15,
-            )
-        except subprocess.TimeoutExpired:
-            return JsonResponse({"detail": "git pull timed out"}, status=500)
-
-        if git_result.returncode != 0:
-            return JsonResponse(
-                {"detail": "git pull failed", "stderr": git_result.stderr[-2000:]},
-                status=500,
-            )
-
         out = StringIO()
         try:
             call_command("migrate", stdout=out, interactive=False)
@@ -48,7 +31,9 @@ class DeployWebhookView(View):
             return JsonResponse({"detail": f"Django command failed: {e}"}, status=500)
 
         self._reload_webapp()
-        return JsonResponse({"detail": "Deployed", "output": out.getvalue()[-2000:]})
+        return JsonResponse(
+            {"detail": "Deployed (no git pull, test)", "output": out.getvalue()[-2000:]}
+        )
 
     def _reload_webapp(self):
         username = os.environ.get("PA_USERNAME")
