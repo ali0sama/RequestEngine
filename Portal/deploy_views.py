@@ -1,13 +1,15 @@
 import hmac
 import os
-import urllib.request
 from io import StringIO
+from pathlib import Path
 
 from django.core.management import call_command
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+
+WSGI_FILE = Path("/var/www/aliosamaportal_pythonanywhere_com_wsgi.py")
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -25,15 +27,5 @@ class DeployWebhookView(View):
         except Exception as e:
             return JsonResponse({"detail": f"call_command failed: {e}"}, status=500)
 
-        self._reload_webapp()
+        WSGI_FILE.touch()
         return JsonResponse({"detail": "Deployed"})
-
-    def _reload_webapp(self):
-        username = os.environ.get("PA_USERNAME")
-        api_token = os.environ.get("PA_API_TOKEN")
-        domain = f"{username}.pythonanywhere.com"
-        url = f"https://www.pythonanywhere.com/api/v0/user/{username}/webapps/{domain}/reload/"
-        req = urllib.request.Request(
-            url, method="POST", headers={"Authorization": f"Token {api_token}"}
-        )
-        urllib.request.urlopen(req, timeout=30)
