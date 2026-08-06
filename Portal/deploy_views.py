@@ -1,5 +1,6 @@
 import hmac
 import os
+import urllib.request
 from io import StringIO
 
 from django.core.management import call_command
@@ -24,4 +25,15 @@ class DeployWebhookView(View):
         except Exception as e:
             return JsonResponse({"detail": f"call_command failed: {e}"}, status=500)
 
-        return JsonResponse({"detail": "migrate+collectstatic OK, no reload yet"})
+        self._reload_webapp()
+        return JsonResponse({"detail": "Deployed"})
+
+    def _reload_webapp(self):
+        username = os.environ.get("PA_USERNAME")
+        api_token = os.environ.get("PA_API_TOKEN")
+        domain = f"{username}.pythonanywhere.com"
+        url = f"https://www.pythonanywhere.com/api/v0/user/{username}/webapps/{domain}/reload/"
+        req = urllib.request.Request(
+            url, method="POST", headers={"Authorization": f"Token {api_token}"}
+        )
+        urllib.request.urlopen(req, timeout=30)
