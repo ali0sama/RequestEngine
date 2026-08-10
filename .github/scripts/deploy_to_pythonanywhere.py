@@ -1,5 +1,7 @@
 import os
+import re
 import sys
+import time
 
 import requests
 
@@ -18,19 +20,30 @@ INCLUDE_TOP = [
 ]
 
 
-def upload_file(local_path, remote_path):
+def upload_file(local_path, remote_path, retries=5):
     url = f"{API_BASE}{remote_path}"
-    with open(local_path, "rb") as f:
-        resp = requests.post(
-            url,
-            headers={"Authorization": f"Token {API_TOKEN}"},
-            files={"content": f},
-        )
-    if resp.status_code not in (200, 201):
+    for attempt in range(retries):
+        with open(local_path, "rb") as f:
+            resp = requests.post(
+                url,
+                headers={"Authorization": f"Token {API_TOKEN}"},
+                files={"content": f},
+            )
+        if resp.status_code in (200, 201):
+            print(f"OK {remote_path}")
+            return True
+        if resp.status_code == 429:
+            match = re.search(r"available in (\d+) seconds", resp.text)
+            wait = int(match.group(1)) + 1 if match else 10
+            print(
+                f"THROTTLED {remote_path}, waiting {wait}s (attempt {attempt + 1}/{retries})"
+            )
+            time.sleep(wait)
+            continue
         print(f"FAILED {remote_path}: {resp.status_code} {resp.text}")
         return False
-    print(f"OK {remote_path}")
-    return True
+    print(f"FAILED {remote_path}: exhausted retries after repeated throttling")
+    return False
 
 
 def main():
@@ -45,6 +58,7 @@ def main():
                 local_path = os.path.join(root, fname)
                 rel = os.path.relpath(local_path, ".").replace(os.sep, "/")
                 ok &= upload_file(local_path, f"{REMOTE_ROOT}/{rel}")
+                time.sleep(0.3)
     if not ok:
         sys.exit(1)
 
