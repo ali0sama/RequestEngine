@@ -1,9 +1,9 @@
+from django.contrib.auth import get_user_model
 from django.db import transaction
-from .models import AccessRequest, State, Action, WorkflowHistory
+
 from .constants import TRANSITIONS
 from .exceptions import InvalidTransitionError, UnauthorizedActionError
-from django.contrib.auth import get_user_model
-
+from .models import AccessRequest, Action, State, WorkflowHistory
 
 User = get_user_model()
 

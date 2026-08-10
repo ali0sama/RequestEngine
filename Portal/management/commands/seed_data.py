@@ -1,13 +1,14 @@
-from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
+from django.core.management.base import BaseCommand
+
 from Portal.models import (
-    Profile,
-    Application,
     AccessRequest,
-    WorkflowHistory,
+    Action,
+    Application,
+    Profile,
     Role,
     State,
-    Action,
+    WorkflowHistory,
 )
 
 

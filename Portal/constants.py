@@ -1,5 +1,5 @@
-from . models import Role,State,Action
- 
+from .models import Action, Role, State
+
 TRANSITIONS={
      (State.DRAFT,Action.SUBMIT):(State.PENDING_MANAGER,Role.REQUESTER),
      

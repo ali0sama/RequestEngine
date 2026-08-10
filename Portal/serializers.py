@@ -1,6 +1,7 @@
-from rest_framework import serializers
-from .models import Application, AccessRequest, WorkflowHistory
 from django.contrib.auth.models import User
+from rest_framework import serializers
+
+from .models import AccessRequest, Application, WorkflowHistory
 
 
 class WorkflowHistorySerializer(serializers.ModelSerializer):

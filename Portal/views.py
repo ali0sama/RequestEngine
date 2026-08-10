@@ -3,43 +3,39 @@
 # Create your views here.
 # def home(request):
 #     return HttpResponse('<h1>This is the Portal Homepage</h1>')
-from rest_framework import viewsets, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.request import Request
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import APIView
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from drf_spectacular.utils import extend_schema
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from .serializers import (
-    UserSerializer,
-    LoginResponseSerializer,
-    RefreshResponseSerializer,
-    ChangePasswordSerializer,
-    LogoutSerializer,
-    WorkflowActionSerializer,
+from .exceptions import InvalidTransitionError, UnauthorizedActionError
+from .models import AccessRequest, Application, State
+from .models import Action as WorkflowAction
+from .permissions import (
+    IsApproverRole,
+    IsCurrentOwner,
+    IsRequester,
+    IsRequesterOrCurrentOwner,
 )
-
-
-from .models import AccessRequest, Application, State, Action as WorkflowAction
 from .serializers import (
     AccessRequestSerializer,
     ApplicationSerializer,
+    ChangePasswordSerializer,
+    LoginResponseSerializer,
+    LogoutSerializer,
+    RefreshResponseSerializer,
+    UserSerializer,
+    WorkflowActionSerializer,
     WorkflowHistorySerializer,
 )
 from .services import apply_transition
-from .exceptions import InvalidTransitionError, UnauthorizedActionError
-from .permissions import (
-    IsApproverRole,
-    IsRequesterOrCurrentOwner,
-    IsCurrentOwner,
-    IsRequester,
-    IsRequesterRole,
-)
 
 
 @extend_schema(

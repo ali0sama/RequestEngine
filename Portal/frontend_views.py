@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from django.conf import settings
 from django.views.static import serve as static_serve
 

@@ -16,18 +16,18 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path, include, re_path
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from django.urls import include, path, re_path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+
+from Portal.deploy_views import DeployWebhookView
+from Portal.frontend_views import serve_frontend
 from Portal.views import (
     AuthLoginView,
     AuthRefreshView,
-    CurrentUserView,
     ChangePasswordView,
+    CurrentUserView,
     LogoutView,
 )
-from Portal.frontend_views import serve_frontend
-from Portal.deploy_views import DeployWebhookView
 
 urlpatterns = [
     path("admin/", admin.site.urls),

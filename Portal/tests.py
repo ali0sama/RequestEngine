@@ -1,8 +1,9 @@
-from django.test import TestCase
 from django.contrib.auth.models import User
-from Portal.models import Profile, Application, AccessRequest, Role, State, Action
-from Portal.services import apply_transition
+from django.test import TestCase
+
 from Portal.exceptions import InvalidTransitionError, UnauthorizedActionError
+from Portal.models import AccessRequest, Action, Application, Profile, Role, State
+from Portal.services import apply_transition
 
 
 class ApplyTransitionTests(TestCase):
