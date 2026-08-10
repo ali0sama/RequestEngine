@@ -21,7 +21,7 @@ jobs:
         with:
           node-version: "22"
       - working-directory: frontend
-        run: npm ci
+        run: npm install
       - working-directory: frontend
         run: npm test
       - working-directory: frontend
@@ -39,7 +39,7 @@ jobs:
       - name: Build frontend
         working-directory: frontend
         run: |
-          npm ci
+          npm install
           npm run build
       - uses: actions/setup-python@v5
         with:
