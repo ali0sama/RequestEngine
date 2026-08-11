@@ -16,6 +16,19 @@
         </a>
       </div>
 
+      <div class="filter-bar">
+        <span class="filter-bar-label"><i class="fa-solid fa-filter"></i> Filter by:</span>
+        @for (option of filterOptions; track option.label) {
+          <a
+            class="filter-btn"
+            [class.active]="isActive(option.value)"
+            routerLink="/requests"
+            [queryParams]="option.value ? { status: option.value } : {}">
+            {{ option.label }}
+          </a>
+        }
+      </div>
+
       @if (loading()) {
         <div class="loading-state">
           <app-loading-spinner size="lg"></app-loading-spinner>
@@ -38,6 +51,14 @@
         </div>
       }
 
+      @else if (filteredRequests().length === 0) {
+        <div class="empty-state">
+          <i class="fa-solid fa-filter-circle-xmark"></i>
+          <p>No requests match this filter.</p>
+          <a class="btn-primary" routerLink="/requests">Show all requests</a>
+        </div>
+      }
+
       @else {
         <div class="table-card">
           <table>
@@ -53,7 +74,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (req of requests(); track req.id) {
+              @for (req of filteredRequests(); track req.id) {
                 <tr>
                   <td class="id-cell">{{ req.id }}</td>
                   <td class="app-cell">{{ req.application_name }}</td>

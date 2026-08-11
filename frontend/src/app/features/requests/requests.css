@@ -30,6 +30,43 @@
 }
 .btn-primary:hover { background: #c00; }
 
+/* ── Filter bar ── */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.filter-bar-label {
+  font-size: 13px;
+  color: #8a8a9a;
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.filter-btn {
+  display: inline-block;
+  background: #fff;
+  color: #555;
+  border: 1px solid #e0e0e8;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.filter-btn:hover { border-color: #E60000; color: #E60000; }
+
+.filter-btn.active {
+  background: #E60000;
+  border-color: #E60000;
+  color: #fff;
+}
+
 /* ── Table ── */
 .table-card {
   background: #fff;

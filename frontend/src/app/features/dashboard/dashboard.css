@@ -33,6 +33,13 @@
   margin-bottom: 24px;
 }
 
+.stat-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
 /* ── Alert banner ── */
 .alert-banner {
   display: flex;

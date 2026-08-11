@@ -29,40 +29,50 @@
 
         <div class="stats-grid">
 
-          <app-statistic-card
-            icon="fa-solid fa-inbox"
-            label="Total Requests"
-            [value]="totalRequests()"
-            color="#E60000">
-          </app-statistic-card>
+          <a class="stat-link" routerLink="/requests">
+            <app-statistic-card
+              icon="fa-solid fa-inbox"
+              label="Total Requests"
+              [value]="totalRequests()"
+              color="#E60000">
+            </app-statistic-card>
+          </a>
 
-          <app-statistic-card
-            icon="fa-solid fa-clock"
-            label="Pending Approval"
-            [value]="pendingCount()"
-            color="#f59e0b">
-          </app-statistic-card>
+          <a class="stat-link" routerLink="/requests" [queryParams]="{ status: 'pending' }">
+            <app-statistic-card
+              icon="fa-solid fa-clock"
+              label="Pending Approval"
+              [value]="pendingCount()"
+              color="#f59e0b">
+            </app-statistic-card>
+          </a>
 
-          <app-statistic-card
-            icon="fa-solid fa-rotate-left"
-            label="Needs My Response"
-            [value]="infoNeededCount()"
-            color="#2563eb">
-          </app-statistic-card>
+          <a class="stat-link" routerLink="/requests" [queryParams]="{ status: 'info' }">
+            <app-statistic-card
+              icon="fa-solid fa-rotate-left"
+              label="Needs My Response"
+              [value]="infoNeededCount()"
+              color="#2563eb">
+            </app-statistic-card>
+          </a>
 
-          <app-statistic-card
-            icon="fa-solid fa-circle-check"
-            label="Approved"
-            [value]="approvedCount()"
-            color="#10b981">
-          </app-statistic-card>
+          <a class="stat-link" routerLink="/requests" [queryParams]="{ status: 'approved' }">
+            <app-statistic-card
+              icon="fa-solid fa-circle-check"
+              label="Approved"
+              [value]="approvedCount()"
+              color="#10b981">
+            </app-statistic-card>
+          </a>
 
-          <app-statistic-card
-            icon="fa-solid fa-circle-xmark"
-            label="Rejected"
-            [value]="rejectedCount()"
-            color="#6366f1">
-          </app-statistic-card>
+          <a class="stat-link" routerLink="/requests" [queryParams]="{ status: 'rejected' }">
+            <app-statistic-card
+              icon="fa-solid fa-circle-xmark"
+              label="Rejected"
+              [value]="rejectedCount()"
+              color="#6366f1">
+            </app-statistic-card>
+          </a>
 
         </div>
 
@@ -73,7 +83,7 @@
               You have <strong>{{ infoNeededCount() }} request{{ infoNeededCount() === 1 ? '' : 's' }}</strong>
               waiting for your response.
             </span>
-            <a routerLink="/requests">View requests</a>
+            <a routerLink="/requests" [queryParams]="{ status: 'info' }">View requests</a>
           </div>
         }
 
