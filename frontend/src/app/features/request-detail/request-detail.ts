@@ -6,16 +6,18 @@ import { Observable } from 'rxjs';
 import { Sidebar } from '../../shared/sidebar/sidebar';
 import { Header } from '../../shared/header/header';
 import { LoadingSpinner } from '../../shared/loading-spinner/loading-spinner';
+import { WorkflowStepper } from '../../shared/workflow-stepper/workflow-stepper';
 import { RequestService } from '../../core/request.service';
 import { Auth } from '../../core/auth';
 import { AccessRequest } from '../../core/models';
+import { statusLabel, statusClass } from '../../core/workflow';
 
 const PENDING_STATES = ['PENDING_MANAGER', 'PENDING_APP_OWNER', 'PENDING_SECURITY'];
 
 @Component({
   selector: 'app-request-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, Sidebar, Header, LoadingSpinner],
+  imports: [CommonModule, RouterModule, Sidebar, Header, LoadingSpinner, WorkflowStepper],
   templateUrl: './request-detail.html',
   styleUrl: './request-detail.css'
 })
@@ -99,23 +101,8 @@ export class RequestDetail implements OnInit {
 
   // ── Display helpers ───────────────────────────────────────────────────────
 
-  statusLabel(state: string): string {
-    const map: Record<string, string> = {
-      DRAFT: 'Draft', PENDING_MANAGER: 'Pending Manager',
-      PENDING_APP_OWNER: 'Pending App Owner', PENDING_SECURITY: 'Pending Security',
-      INFO_REQUESTED: 'Info Requested', APPROVED: 'Approved', REJECTED: 'Rejected',
-    };
-    return map[state] ?? state;
-  }
-
-  statusClass(state: string): string {
-    const map: Record<string, string> = {
-      DRAFT: 'badge-draft', PENDING_MANAGER: 'badge-pending',
-      PENDING_APP_OWNER: 'badge-pending', PENDING_SECURITY: 'badge-pending',
-      INFO_REQUESTED: 'badge-info', APPROVED: 'badge-approved', REJECTED: 'badge-rejected',
-    };
-    return map[state] ?? 'badge-draft';
-  }
+  statusLabel = statusLabel;
+  statusClass = statusClass;
 
   historyIcon(action: string): string {
     const map: Record<string, string> = {

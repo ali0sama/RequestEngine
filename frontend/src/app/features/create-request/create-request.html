@@ -50,7 +50,11 @@
             <!-- Selected app info card -->
             @if (selectedApp) {
               <div class="app-info">
-                <i class="fa-solid fa-layer-group"></i>
+                @if (selectedApp.logo) {
+                  <img [src]="'/' + selectedApp.logo" [alt]="selectedApp.name + ' logo'" class="app-info-logo">
+                } @else {
+                  <i class="fa-solid fa-layer-group"></i>
+                }
                 <div>
                   <strong>{{ selectedApp.name }}</strong>
                   <p>{{ selectedApp.description || 'No description available.' }}</p>

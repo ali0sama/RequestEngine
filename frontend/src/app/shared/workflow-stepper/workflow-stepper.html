@@ -1,0 +1,26 @@
+<div class="workflow-stepper">
+  @for (step of steps; track step.state; let last = $last) {
+    <div class="step-wrapper">
+      <div class="step" [ngClass]="'step-' + step.status">
+        <div class="step-icon">
+          <i [class]="icon(step.status)"></i>
+        </div>
+        <div class="step-label">{{ step.label }}</div>
+
+        @if (step.status === 'info-paused') {
+          <div class="step-note">Awaiting requester response</div>
+        }
+        @if (step.status === 'rejected') {
+          <div class="step-note">Rejected here</div>
+        }
+        @if (step.status === 'not-reached') {
+          <div class="step-note">Not reached</div>
+        }
+      </div>
+
+      @if (!last) {
+        <div class="step-connector" [ngClass]="'connector-' + step.status"></div>
+      }
+    </div>
+  }
+</div>

@@ -4,6 +4,7 @@ export interface Application {
   owner: number;
   owner_username: string;
   description: string;
+  logo: string;
 }
 
 export interface WorkflowHistory {

@@ -40,7 +40,11 @@
             <div class="app-card">
 
               <div class="app-icon">
-                <i class="fa-solid fa-layer-group"></i>
+                @if (app.logo) {
+                  <img [src]="'/' + app.logo" [alt]="app.name + ' logo'">
+                } @else {
+                  <i class="fa-solid fa-layer-group"></i>
+                }
               </div>
 
               <div class="app-body">

@@ -46,6 +46,10 @@ class Application(models.Model):
         related_name='owned_applications'
     )
     description = models.TextField(blank=True)
+    logo = models.CharField(
+        max_length=255, blank=True,
+        help_text="Relative path under frontend/public/, e.g. images/app-logos/slack.png"
+    )
 
     def __str__(self):
         return self.name

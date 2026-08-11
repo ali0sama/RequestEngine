@@ -7,6 +7,7 @@ import { Header } from '../../shared/header/header';
 import { LoadingSpinner } from '../../shared/loading-spinner/loading-spinner';
 import { RequestService } from '../../core/request.service';
 import { AccessRequest } from '../../core/models';
+import { statusLabel, statusClass } from '../../core/workflow';
 
 @Component({
   selector: 'app-requests',
@@ -30,29 +31,6 @@ export class Requests implements OnInit {
     });
   }
 
-  statusLabel(state: string): string {
-    const labels: Record<string, string> = {
-      DRAFT:             'Draft',
-      PENDING_MANAGER:   'Pending Manager',
-      PENDING_APP_OWNER: 'Pending App Owner',
-      PENDING_SECURITY:  'Pending Security',
-      INFO_REQUESTED:    'Info Requested',
-      APPROVED:          'Approved',
-      REJECTED:          'Rejected',
-    };
-    return labels[state] ?? state;
-  }
-
-  statusClass(state: string): string {
-    const classes: Record<string, string> = {
-      DRAFT:             'badge-draft',
-      PENDING_MANAGER:   'badge-pending',
-      PENDING_APP_OWNER: 'badge-pending',
-      PENDING_SECURITY:  'badge-pending',
-      INFO_REQUESTED:    'badge-info',
-      APPROVED:          'badge-approved',
-      REJECTED:          'badge-rejected',
-    };
-    return classes[state] ?? 'badge-draft';
-  }
+  statusLabel = statusLabel;
+  statusClass = statusClass;
 }

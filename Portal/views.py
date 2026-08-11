@@ -3,6 +3,8 @@
 # Create your views here.
 # def home(request):
 #     return HttpResponse('<h1>This is the Portal Homepage</h1>')
+import logging
+
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from drf_spectacular.utils import extend_schema
@@ -37,6 +39,8 @@ from .serializers import (
 )
 from .services import apply_transition
 
+audit_logger = logging.getLogger("portal.audit")
+
 
 @extend_schema(
     tags=["Authentication"],
@@ -45,7 +49,11 @@ from .services import apply_transition
     responses={200: LoginResponseSerializer},
 )
 class AuthLoginView(TokenObtainPairView):
-    pass
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == 200:
+            audit_logger.info("Login succeeded for username=%s", request.data.get("username"))
+        return response
 
 
 @extend_schema(
@@ -280,12 +288,28 @@ class AccessRequestViewSet(viewsets.ModelViewSet):
                 access_request, workflow_action, request.user, comment
             )
         except InvalidTransitionError as e:
+            audit_logger.warning(
+                "Invalid transition denied: request=%s action=%s actor=%s state=%s: %s",
+                access_request.id, workflow_action, request.user,
+                access_request.current_state, e,
+            )
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except UnauthorizedActionError as e:
+            audit_logger.warning(
+                "Unauthorized action denied: request=%s action=%s actor=%s: %s",
+                access_request.id, workflow_action, request.user, e,
+            )
             return Response({"detail": str(e)}, status=status.HTTP_403_FORBIDDEN)
 
         serializer = self.get_serializer(updated)
         return Response(serializer.data)
+
+    def permission_denied(self, request, message=None, code=None):
+        audit_logger.warning(
+            "Permission denied: user=%s action=%s path=%s",
+            request.user, self.action, request.path,
+        )
+        super().permission_denied(request, message=message, code=code)
 
 
 class ApplicationViewSet(viewsets.ReadOnlyModelViewSet):

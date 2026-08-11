@@ -241,8 +241,8 @@
 .btn-return  { background: #2563eb; color: #fff; }
 .btn-return:hover:not(:disabled)  { background: #1d4ed8; }
 
-.btn-reject  { background: #f8f9fb; color: #dc2626; border: 1.5px solid #fecaca; }
-.btn-reject:hover:not(:disabled)  { background: #fef2f2; }
+.btn-reject  { background: #dc2626; color: #fff; }
+.btn-reject:hover:not(:disabled)  { background: #b91c1c; }
 
 /* ── Status badges ── */
 .badge {

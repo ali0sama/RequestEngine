@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth import get_user_model
 from django.db import transaction
 
@@ -6,6 +8,7 @@ from .exceptions import InvalidTransitionError, UnauthorizedActionError
 from .models import AccessRequest, Action, State, WorkflowHistory
 
 User = get_user_model()
+audit_logger = logging.getLogger("portal.audit")
 
 
 def apply_transition(
@@ -16,13 +19,14 @@ def apply_transition(
             raise InvalidTransitionError("Can only resubmit from INFO_REQUESTED")
         if access_request.requester != actor:
             raise UnauthorizedActionError("Only the requester can resubmit")
+        from_state = access_request.current_state
         new_state = access_request.returned_from_state
         new_owner = _owner_for_state(access_request, new_state)
 
         with transaction.atomic():
             WorkflowHistory.objects.create(
                 request=access_request,
-                from_state=access_request.current_state,
+                from_state=from_state,
                 to_state=new_state,
                 action=action,
                 actor=actor,
@@ -33,6 +37,10 @@ def apply_transition(
             access_request.returned_from_state = None
             access_request.save()
 
+        audit_logger.info(
+            "Transition: request=%s action=%s actor=%s %s -> %s",
+            access_request.id, action, actor, from_state, new_state,
+        )
         return access_request
     lookup_key = (access_request.current_state, action)
     if lookup_key not in TRANSITIONS:
@@ -66,11 +74,12 @@ def apply_transition(
             f"Cannot move this request to {new_state}: no eligible owner could be found "
             f"(check that a manager/application owner/security team member is properly assigned)"
         )
-    returned_from = access_request.current_state if action == Action.RETURN else None
+    from_state = access_request.current_state
+    returned_from = from_state if action == Action.RETURN else None
     with transaction.atomic():
         WorkflowHistory.objects.create(
             request=access_request,
-            from_state=access_request.current_state,
+            from_state=from_state,
             to_state=new_state,
             action=action,
             actor=actor,
@@ -81,6 +90,10 @@ def apply_transition(
         access_request.returned_from_state = returned_from
         access_request.save()
 
+    audit_logger.info(
+        "Transition: request=%s action=%s actor=%s %s -> %s",
+        access_request.id, action, actor, from_state, new_state,
+    )
     return access_request
 
 

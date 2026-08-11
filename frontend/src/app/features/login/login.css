@@ -8,13 +8,27 @@
 
     align-items:center;
 
-    background:linear-gradient(135deg,#f8f8f8,#ececec);
+    background:
+        repeating-linear-gradient(
+            135deg,
+            rgba(255,255,255,.08) 0px,
+            rgba(255,255,255,.08) 40px,
+            transparent 40px,
+            transparent 140px
+        ),
+        linear-gradient(135deg,#E60000,#C40000);
 
 }
 
 .login-card{
 
-    width:430px;
+    position:relative;
+
+    width:100%;
+
+    max-width:430px;
+
+    margin:24px;
 
     background:white;
 
@@ -22,7 +36,7 @@
 
     border-radius:18px;
 
-    box-shadow:0 15px 35px rgba(0,0,0,.15);
+    box-shadow:0 15px 45px rgba(0,0,0,.25);
 
 }
 

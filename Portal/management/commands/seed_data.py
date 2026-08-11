@@ -20,153 +20,174 @@ class Command(BaseCommand):
 
         # ── Users ─────────────────────────────────────────────────────────────
 
-        requester1 = self._make_user("emma.watson", "pass1234")
-        manager1 = self._make_user("james.carter", "pass1234")
-        appowner1 = self._make_user("olivia.chen", "pass1234")
-        security1 = self._make_user("noah.patel", "pass1234")
+        manager = self._make_user("daniel.foster", "pass1234")
+        requester1 = self._make_user("olivia.bennett", "pass1234")
+        requester2 = self._make_user("marcus.reyes", "pass1234")
+        requester_no_manager = self._make_user("zara.khalil", "pass1234")
+        appowner1 = self._make_user("priya.nair", "pass1234")
+        appowner2 = self._make_user("lucas.moreau", "pass1234")
+        security1 = self._make_user("sophia.becker", "pass1234")
 
-        self._make_profile(requester1, Role.REQUESTER, manager=manager1)
-        self._make_profile(manager1, Role.MANAGER)
+        self._make_profile(manager, Role.MANAGER)
+        self._make_profile(requester1, Role.REQUESTER, manager=manager)
+        self._make_profile(requester2, Role.REQUESTER, manager=manager)
+        self._make_profile(requester_no_manager, Role.REQUESTER, manager=None)
         self._make_profile(appowner1, Role.APP_OWNER)
+        self._make_profile(appowner2, Role.APP_OWNER)
         self._make_profile(security1, Role.SECURITY)
 
         # ── Applications ──────────────────────────────────────────────────────
 
-        github = self._make_app(
-            "GitHub Enterprise",
-            appowner1,
-            "Source control and CI/CD platform used by engineering.",
+        slack = self._make_app(
+            "Slack", appowner1,
+            "Team messaging and collaboration platform.",
+            logo="images/app-logos/slack.png",
         )
         jira = self._make_app(
-            "Jira", appowner1, "Issue tracking and project management platform."
+            "Jira", appowner1,
+            "Issue tracking and project management platform.",
+            logo="images/app-logos/jira.png",
+        )
+        confluence = self._make_app(
+            "Confluence", appowner1,
+            "Team knowledge base and documentation.",
+            logo="images/app-logos/confluence.png",
+        )
+        zoom = self._make_app(
+            "Zoom", appowner1,
+            "Video conferencing and meetings.",
+            logo="images/app-logos/zoom.png",
+        )
+        github = self._make_app(
+            "GitHub Enterprise", appowner2,
+            "Source control and CI/CD platform used by engineering.",
+            logo="images/app-logos/github.png",
         )
         aws = self._make_app(
-            "AWS Console",
-            appowner1,
+            "AWS Console", appowner2,
             "Cloud infrastructure console for provisioning and billing.",
+            logo="images/app-logos/aws.png",
+        )
+        salesforce = self._make_app(
+            "Salesforce", appowner2,
+            "Customer relationship management platform.",
+            logo="images/app-logos/salesforce.png",
+        )
+        okta = self._make_app(
+            "Okta", appowner2,
+            "Identity and access management platform.",
+            logo="images/app-logos/okta.png",
         )
 
         # ── Requests (states set directly — no permission checks needed for seed data) ─
 
         # 1. DRAFT
         self._make_request(
-            requester1,
-            jira,
-            "Need access to track my team's sprint tickets.",
-            State.DRAFT,
-            current_owner=None,
+            requester1, slack,
+            "Need Slack access to join the platform engineering channels.",
+            State.DRAFT, current_owner=None,
             history=[],
         )
 
         # 2. PENDING_MANAGER
         self._make_request(
-            requester1,
-            github,
-            "Required to push code for the new mobile app project.",
-            State.PENDING_MANAGER,
-            current_owner=manager1,
+            requester2, jira,
+            "Need to track my team's sprint tickets.",
+            State.PENDING_MANAGER, current_owner=manager,
             history=[
-                (State.DRAFT, State.PENDING_MANAGER, Action.SUBMIT, requester1, ""),
+                (State.DRAFT, State.PENDING_MANAGER, Action.SUBMIT, requester2, ""),
             ],
         )
 
         # 3. PENDING_APP_OWNER
         self._make_request(
-            requester1,
-            aws,
-            "Need access to deploy to the staging S3 bucket.",
-            State.PENDING_APP_OWNER,
-            current_owner=appowner1,
+            requester1, confluence,
+            "Need access to publish onboarding documentation.",
+            State.PENDING_APP_OWNER, current_owner=appowner1,
             history=[
                 (State.DRAFT, State.PENDING_MANAGER, Action.SUBMIT, requester1, ""),
-                (
-                    State.PENDING_MANAGER,
-                    State.PENDING_APP_OWNER,
-                    Action.APPROVE,
-                    manager1,
-                    "Approved — legitimate business need.",
-                ),
+                (State.PENDING_MANAGER, State.PENDING_APP_OWNER, Action.APPROVE, manager,
+                 "Approved — legitimate business need."),
             ],
         )
 
-        # 4. APPROVED (full workflow)
+        # 4. PENDING_SECURITY
         self._make_request(
-            requester1,
-            jira,
-            "Permanent access needed for cross-team reporting duties.",
-            State.APPROVED,
-            current_owner=None,
+            requester2, github,
+            "Required to push code for the new mobile app project.",
+            State.PENDING_SECURITY, current_owner=security1,
             history=[
-                (State.DRAFT, State.PENDING_MANAGER, Action.SUBMIT, requester1, ""),
-                (
-                    State.PENDING_MANAGER,
-                    State.PENDING_APP_OWNER,
-                    Action.APPROVE,
-                    manager1,
-                    "Confirmed with team lead.",
-                ),
-                (
-                    State.PENDING_APP_OWNER,
-                    State.PENDING_SECURITY,
-                    Action.APPROVE,
-                    appowner1,
-                    "Access level is appropriate.",
-                ),
-                (
-                    State.PENDING_SECURITY,
-                    State.APPROVED,
-                    Action.APPROVE,
-                    security1,
-                    "Security review passed.",
-                ),
+                (State.DRAFT, State.PENDING_MANAGER, Action.SUBMIT, requester2, ""),
+                (State.PENDING_MANAGER, State.PENDING_APP_OWNER, Action.APPROVE, manager,
+                 "Confirmed with team lead."),
+                (State.PENDING_APP_OWNER, State.PENDING_SECURITY, Action.APPROVE, appowner2,
+                 "Access level is appropriate."),
             ],
         )
 
-        # 5. REJECTED
+        # 5. APPROVED (full workflow)
         self._make_request(
-            requester1,
-            github,
-            "Temporary access for a hackathon project.",
-            State.REJECTED,
-            current_owner=None,
+            requester1, aws,
+            "Permanent access needed for the platform team's on-call rotation.",
+            State.APPROVED, current_owner=None,
             history=[
                 (State.DRAFT, State.PENDING_MANAGER, Action.SUBMIT, requester1, ""),
-                (
-                    State.PENDING_MANAGER,
-                    State.REJECTED,
-                    Action.REJECT,
-                    manager1,
-                    "Hackathon repo already has open access, no need for full org access.",
-                ),
+                (State.PENDING_MANAGER, State.PENDING_APP_OWNER, Action.APPROVE, manager,
+                 "Confirmed with team lead."),
+                (State.PENDING_APP_OWNER, State.PENDING_SECURITY, Action.APPROVE, appowner2,
+                 "Access level is appropriate."),
+                (State.PENDING_SECURITY, State.APPROVED, Action.APPROVE, security1,
+                 "Security review passed."),
             ],
         )
 
-        # 6. INFO_REQUESTED
+        # 6. REJECTED
         self._make_request(
-            requester1,
-            aws,
-            "Access needed for the Project Atlas migration work.",
-            State.INFO_REQUESTED,
-            current_owner=requester1,
-            returned_from_state=State.PENDING_MANAGER,
+            requester2, salesforce,
+            "Temporary access for a demo environment.",
+            State.REJECTED, current_owner=None,
+            history=[
+                (State.DRAFT, State.PENDING_MANAGER, Action.SUBMIT, requester2, ""),
+                (State.PENDING_MANAGER, State.REJECTED, Action.REJECT, manager,
+                 "Demo can be done with existing sandbox access, no need for full org access."),
+            ],
+        )
+
+        # 7. INFO_REQUESTED
+        self._make_request(
+            requester1, okta,
+            "Access needed for the SSO migration project.",
+            State.INFO_REQUESTED, current_owner=requester1,
+            returned_from_state=State.PENDING_APP_OWNER,
             history=[
                 (State.DRAFT, State.PENDING_MANAGER, Action.SUBMIT, requester1, ""),
-                (
-                    State.PENDING_MANAGER,
-                    State.INFO_REQUESTED,
-                    Action.RETURN,
-                    manager1,
-                    "Please specify which AWS accounts/regions you need.",
-                ),
+                (State.PENDING_MANAGER, State.PENDING_APP_OWNER, Action.APPROVE, manager,
+                 "Approved — legitimate business need."),
+                (State.PENDING_APP_OWNER, State.INFO_REQUESTED, Action.RETURN, appowner2,
+                 "Please specify which applications need SSO enabled."),
+            ],
+        )
+
+        # 8. Manager-skip case — requester has no manager, SUBMIT jumps straight to PENDING_APP_OWNER
+        self._make_request(
+            requester_no_manager, zoom,
+            "Need Zoom access for client-facing calls.",
+            State.PENDING_APP_OWNER, current_owner=appowner1,
+            history=[
+                (State.DRAFT, State.PENDING_APP_OWNER, Action.SUBMIT, requester_no_manager, ""),
             ],
         )
 
         self.stdout.write(
             self.style.SUCCESS(
                 "\nDone!\n"
-                "  Users        : emma.watson, james.carter, olivia.chen, noah.patel  (password: pass1234)\n"
-                "  Applications : GitHub Enterprise, Jira, AWS Console\n"
-                "  Requests     : DRAFT, PENDING_MANAGER, PENDING_APP_OWNER, APPROVED, REJECTED, INFO_REQUESTED\n"
+                "  Users        : daniel.foster (manager), olivia.bennett, marcus.reyes,\n"
+                "                 zara.khalil (no manager), priya.nair, lucas.moreau (app owners),\n"
+                "                 sophia.becker (security)  — password: pass1234\n"
+                "  Applications : Slack, Jira, Confluence, Zoom, GitHub Enterprise,\n"
+                "                 AWS Console, Salesforce, Okta\n"
+                "  Requests     : DRAFT, PENDING_MANAGER, PENDING_APP_OWNER, PENDING_SECURITY,\n"
+                "                 APPROVED, REJECTED, INFO_REQUESTED, and a manager-skip case\n"
             )
         )
 
@@ -186,12 +207,13 @@ class Command(BaseCommand):
         profile.save()
         return profile
 
-    def _make_app(self, name, owner, description=""):
+    def _make_app(self, name, owner, description="", logo=""):
         app, _ = Application.objects.get_or_create(
             name=name,
             defaults={
                 "owner": owner,
                 "description": description,
+                "logo": logo,
             },
         )
         return app
