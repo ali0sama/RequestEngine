@@ -179,3 +179,19 @@ Full interactive documentation with request/response schemas is available via Sw
 | Auth | `/api/auth/login/`, `/refresh/`, `/logout/`, `/me/`, `/change-password/` |
 | Applications | `/api/applications/` |
 | Requests | `/api/requests/` — create, list, detail, submit, approve, reject, return-for-info, resubmit, pending-approvals, history |
+
+## Deployed Version
+
+URL: https://aliosamaportal.pythonanywhere.com/
+
+Test Users-> (REQUESTER)    username: marcus.reyes
+                            password: pass1234
+                            
+             (LINE_MANAGER) username: daniel.foster
+                            password: pass1234
+                            
+             (APP_OWNER)    username: lucas.moreau
+                            password: pass1234
+
+             (SECURITY)     username: sophia.becker
+                            password: pass1234
