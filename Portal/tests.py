@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from rest_framework.test import APIClient
 
@@ -72,6 +73,27 @@ class ApplyTransitionTests(TestCase):
             apply_transition(req, Action.SUBMIT, self.requester)
 
         self.assertTrue(any("SUBMIT" in line and str(req.id) in line for line in cm.output))
+
+
+class ProfileManagerValidationTests(TestCase):
+    def test_manager_field_must_have_manager_role(self):
+        requester = User.objects.create_user("bad_manager_test", password="pass1234")
+        Profile.objects.create(user=requester, role=Role.REQUESTER)
+
+        subordinate = User.objects.create_user("subordinate_test", password="pass1234")
+        profile = Profile(user=subordinate, role=Role.REQUESTER, manager=requester)
+
+        with self.assertRaises(ValidationError):
+            profile.full_clean()
+
+    def test_manager_field_accepts_actual_manager(self):
+        manager = User.objects.create_user("real_manager_test", password="pass1234")
+        Profile.objects.create(user=manager, role=Role.MANAGER)
+
+        subordinate = User.objects.create_user("subordinate2_test", password="pass1234")
+        profile = Profile(user=subordinate, role=Role.REQUESTER, manager=manager)
+
+        profile.full_clean()  # should not raise
 
 
 class AuditLoggingApiTests(TestCase):

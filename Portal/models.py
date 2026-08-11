@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -34,6 +35,15 @@ class Profile(models.Model):
         blank=True,
         related_name='direct_reports'
     )
+
+    def clean(self):
+        super().clean()
+        if self.manager_id:
+            manager_profile = getattr(self.manager, "profile", None)
+            if manager_profile is None or manager_profile.role != Role.MANAGER:
+                raise ValidationError(
+                    {"manager": "The selected manager must have the Manager role."}
+                )
 
     def __str__(self):
         return f"{self.user.username} ({self.role})"

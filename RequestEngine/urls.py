@@ -52,5 +52,5 @@ urlpatterns = [
     path("api/deploy-webhook/", DeployWebhookView.as_view(), name="deploy-webhook"),
 ]
 urlpatterns += [
-    re_path(r"^(?!admin/|api/|static/)(?P<path>.*)$", serve_frontend),
+    re_path(r"^(?!admin(?:/|$)|api(?:/|$)|static(?:/|$))(?P<path>.*)$", serve_frontend),
 ]
