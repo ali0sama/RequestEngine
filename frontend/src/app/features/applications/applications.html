@@ -58,7 +58,7 @@
                 </div>
               </div>
 
-              <a class="request-btn" [routerLink]="['/create-request']">
+              <a class="request-btn" routerLink="/create-request" [queryParams]="{ app: app.id }">
                 <i class="fa-solid fa-plus"></i> Request Access
               </a>
 

@@ -1,7 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { Sidebar } from '../../shared/sidebar/sidebar';
 import { Header } from '../../shared/header/header';
@@ -29,7 +29,8 @@ export class CreateRequest implements OnInit {
   constructor(
     private fb: FormBuilder,
     private requestService: RequestService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.form = this.fb.group({
       application:   [null, Validators.required],
@@ -39,7 +40,15 @@ export class CreateRequest implements OnInit {
 
   ngOnInit(): void {
     this.requestService.getApplications().subscribe({
-      next:  (apps) => { this.applications.set(apps); this.loadingApps.set(false); },
+      next:  (apps) => {
+        this.applications.set(apps);
+        this.loadingApps.set(false);
+
+        const preselectId = Number(this.route.snapshot.queryParamMap.get('app'));
+        if (preselectId && apps.some(a => a.id === preselectId)) {
+          this.form.patchValue({ application: preselectId });
+        }
+      },
       error: ()     => { this.appsError.set(true);    this.loadingApps.set(false); }
     });
   }
