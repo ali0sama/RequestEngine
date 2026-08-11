@@ -184,7 +184,9 @@ Full interactive documentation with request/response schemas is available via Sw
 
 URL: https://aliosamaportal.pythonanywhere.com/
 
-Test Users-> (REQUESTER)    username: marcus.reyes
+Test Users-> 
+
+             (REQUESTER)    username: marcus.reyes
                             password: pass1234
                             
              (LINE_MANAGER) username: daniel.foster
